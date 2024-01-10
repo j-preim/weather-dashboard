@@ -1,0 +1,19 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#top {
+  background-color: rgb(85, 0, 242);
+  background-image: linear-gradient(to right, rgb(64, 3, 246) , rgb(28, 2, 106));
+  color: white;
+}
+
+aside {
+  display: flex;
+  flex-direction: column;
+  margin-right: 9px;
+}
+
+main header {
+  font-size: 150%;
+}

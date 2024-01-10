@@ -12,11 +12,40 @@
 </head>
 
 <body>
-    <header class="py-3 text-center border-bottom border-5 border-dark">
-        <h1 class="display-4">Weather Dashboard</h1>
+    <header class="py-3 text-center" id="top">
+        <h1>Weather Dashboard</h1>
     </header>
 
-    <main class="container-fluid" id="main">
+    <main class="container-fluid py-2" id="main">
+        <div class="row">
+            <aside class="col-3 border border-right">
+                <h3>Search for a City:</h3>
+                <input placeholder="San Diego" id="cityName">
+                <button class="searchBtn">Search</button>
+            </aside>
+            <div class="col-8">
+                <section class="mb-3 p-2 border border-1 border-dark" id="currentInfo">
+                    <header id="cityCurrent">
+                    </header>
+                    <div id="tempCurrent">Temp:</div>
+                    <div id="windCurrent">Wind:</div>
+                    <div id="humidityCurrent">Humidity:</div>
+                </section>
+                <section>
+                    <div class="row ps-">
+                        <h4>5-Day Forecast:</h4>
+                    </div>
+                    <div class="row justify-content-around">
+                        <div class="col-2 bg-primary">1</div>
+                        <div class="col-2 bg-primary">2</div>
+                        <div class="col-2 bg-primary">3</div>
+                        <div class="col-2 bg-primary">4</div>
+                        <div class="col-2 bg-primary">5</div>
+                    </div>
+                </section>
+                </row>
+            </div>
+        </div>
     </main>
 
     <!-- For HTML page to use Bootstrap that uses some Java with CSS-->
