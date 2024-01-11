@@ -14,6 +14,23 @@ aside {
   margin-right: 9px;
 }
 
+header {
+  font-weight: bold;
+}
+
 main header {
   font-size: 150%;
+}
+
+.forecast-card {
+  background-color: rgb(40, 46, 66);
+  color: white;
+}
+
+.forecast-card div {
+  padding-bottom: 1rem;
+}
+
+img {
+  box-shadow : inset 10px 5px 5px red;
 }

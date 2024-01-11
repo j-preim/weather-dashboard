@@ -1,13 +1,33 @@
 //retrieve and format current time/date
 const today = dayjs();
-const todayFormatted = today.format("M/D/YY");
+const todayFormatted = formatDate(today);
+
+function formatDate (date) {
+  return dayjs(date).format("M/D/YYYY");
+}
 
 var cityName = document.querySelector("#cityName");
 var searchBtn = $(".searchBtn");
 var APIKey = "d3d61fa7fc189fe9cb855f295de8c0de";
 
+let storedSearches = JSON.parse(localStorage.getItem("storedSearches"));
+if (storedSearches === null) {
+  storedSearches = [];
+}
+
+const asideEl = $("aside");
+
+for (i = 0; i < storedSearches.length; i++) {
+  const storedSearchButton = $("<button>");
+  storedSearchButton.addClass("my-2");
+  storedSearchButton.text(storedSearches.reverse()[i]);
+  asideEl.append(storedSearchButton);
+}
+
 searchBtn.on("click", function (e) {
-  cityName = cityName.value;
+  cityName = cityName.value.charAt(0).toUpperCase() + cityName.value.slice(1);
+  storedSearches.push(cityName);
+  localStorage.setItem("storedSearches", JSON.stringify(storedSearches));
   getCoordinates(cityName);
 });
 
@@ -23,15 +43,12 @@ function getCoordinates(cityName) {
       return response.json();
     })
     .then(function (data) {
-        for (var i = 0; i < data.length; i++) {
-      var latitude = data[i].lat;
-      var longitude = data[i].lon;
-    }
-    getForecast(latitude, longitude);
-});
+        var latitude = data[0].lat;
+        var longitude = data[0].lon;
+    
+      getForecast(latitude, longitude);
+})
 }
-
-var forecastArray = [];
 
 function getForecast(latitude, longitude) {
   var forecastUrl =
@@ -40,19 +57,92 @@ function getForecast(latitude, longitude) {
     "&lon=" +
     longitude +
     "&appid=" +
-    APIKey;
+    APIKey +
+    "&units=imperial";
+
   fetch(forecastUrl)
     .then(function (response) {
       return response.json();
     })
     .then(function (data) {
-      for (var i = 0; i < data.list.length; i++) {
-        forecastArray.push(data.list[i]);
-      }
+      var day1 = data.list[4];
+      var day2 = data.list[12];
+      var day3 = data.list[20];
+      var day4 = data.list[28];
+      var day5 = data.list[36];
+
+      renderCurrent(day1, day2, day3, day4, day5);
     });
-    renderCurrent();
 }
 
-function renderCurrent() {
-    $("#cityCurrent").text(cityName + " (" + todayFormatted + ")");
+function renderCurrent(day1, day2, day3, day4, day5) {
+  const resultsEl = $("#results");
+
+  const currentInfoEl = $("<section>");
+  currentInfoEl.addClass("mb-3 p-2 border border-1 border-dark");
+  currentInfoEl.attr("id", "currentInfo");
+  resultsEl.append(currentInfoEl);
+
+  const cityCurrentEl = $("<header>");
+  cityCurrentEl.attr("id", "cityCurrent");
+  cityCurrentEl.text(cityName + " (" + todayFormatted + ") ");
+  cityCurrentEl.append(generateIconImgTag(day1.weather[0].icon));
+  currentInfoEl.append(cityCurrentEl);
+
+  const tempCurrentEl = $("<div>");
+  tempCurrentEl.attr("id", "tempCurrent");
+  tempCurrentEl.text("Temp: " + day1.main.temp);
+  currentInfoEl.append(tempCurrentEl);
+
+  const windCurrentEl = $("<div>");
+  windCurrentEl.attr("id", "windCurrent");
+  windCurrentEl.text("Wind: " + day1.wind.speed);
+  currentInfoEl.append(windCurrentEl);
+
+  const humidityCurrentEl = $("<div>");
+  humidityCurrentEl.attr("id", "humidityCurrent");
+  humidityCurrentEl.text("Humidity: " + day1.main.humidity);
+  currentInfoEl.append(humidityCurrentEl);
+
+  const fiveDayHeaderEl = $("<header>");
+  fiveDayHeaderEl.text("5-Day Forecast:");
+  resultsEl.append(fiveDayHeaderEl);
+
+  forecastRowEl = $("<div>");
+  forecastRowEl.addClass("row justify-content-around");
+  resultsEl.append(forecastRowEl);
+
+  const forecastArray = [day1, day2, day3, day4, day5];
+  
+  for (i = 0; i < forecastArray.length; i++) {
+    let forecastCardEl = $("<div>");
+    forecastCardEl.addClass("col-2 pt-1 mt-1 forecast-card");
+    forecastRowEl.append(forecastCardEl);
+
+    let forecastHeaderEl = $("<header>");
+    forecastHeaderEl.text(formatDate(forecastArray[i].dt_txt));
+    forecastCardEl.append(forecastHeaderEl);
+
+    let forecastIconEl = $("<div>");
+    forecastIconEl.append(generateIconImgTag(forecastArray[i].weather[0].icon));
+    forecastCardEl.append(forecastIconEl);
+
+    let tempForecastEl = $("<div>");
+    tempForecastEl.text("Temp: " + forecastArray[i].main.temp);
+    forecastCardEl.append(tempForecastEl);
+
+    let windForecastEl = $("<div>");
+    windForecastEl.text("Wind: " + forecastArray[i].wind.speed);
+    forecastCardEl.append(windForecastEl);
+
+    let humidityForecastEl = $("<div>");
+    humidityForecastEl.text("Humidity: " + forecastArray[i].main.humidity);
+    forecastCardEl.append(humidityForecastEl);
+  }
+}
+
+function generateIconImgTag(iconCode) {
+  let iconURL = "https://openweathermap.org/img/wn/" + iconCode + ".png";
+  let iconImgTag = "<img src=" + iconURL + ">";
+  return iconImgTag;
 }
