@@ -25,6 +25,7 @@ main header {
 .forecast-card {
   background-color: rgb(40, 46, 66);
   color: white;
+  font-size: 90%;
 }
 
 .forecast-card div {

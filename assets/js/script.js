@@ -44,7 +44,7 @@ searchButton.on("click", async function (e) {
 
 async function getCoordinates(cityName) {
   var geoUrl =
-    "http://api.openweathermap.org/geo/1.0/direct?q=" +
+    "https://api.openweathermap.org/geo/1.0/direct?q=" +
     cityName +
     "&limit=1&appid=" +
     APIKey;
@@ -64,9 +64,8 @@ return coordinates;
 
 async function getForecast(cityName) {
   const coordinates = await getCoordinates(cityName);
-  console.log(coordinates);
   var forecastUrl =
-    "http://api.openweathermap.org/data/2.5/forecast?lat=" +
+    "https://api.openweathermap.org/data/2.5/forecast?lat=" +
     coordinates.latitude +
     "&lon=" +
     coordinates.longitude +
@@ -91,7 +90,6 @@ function clearPage() {
   if (resultsEl) {
     resultsEl.html("");
   }
-  console.log(resultsEl);
 }
 
 function renderCurrent(forecastArray, cityName) {
@@ -111,17 +109,17 @@ function renderCurrent(forecastArray, cityName) {
 
   const tempCurrentEl = $("<div>");
   tempCurrentEl.attr("id", "tempCurrent");
-  tempCurrentEl.text("Temp: " + forecastArray[0].main.temp);
+  tempCurrentEl.text("Temp: " + forecastArray[0].main.temp + " F");
   currentInfoEl.append(tempCurrentEl);
 
   const windCurrentEl = $("<div>");
   windCurrentEl.attr("id", "windCurrent");
-  windCurrentEl.text("Wind: " + forecastArray[0].wind.speed);
+  windCurrentEl.text("Wind: " + forecastArray[0].wind.speed + " MPH");
   currentInfoEl.append(windCurrentEl);
 
   const humidityCurrentEl = $("<div>");
   humidityCurrentEl.attr("id", "humidityCurrent");
-  humidityCurrentEl.text("Humidity: " + forecastArray[0].main.humidity);
+  humidityCurrentEl.text("Humidity: " + forecastArray[0].main.humidity + " %");
   currentInfoEl.append(humidityCurrentEl);
 
   const fiveDayHeaderEl = $("<header>");
@@ -147,15 +145,15 @@ function renderCurrent(forecastArray, cityName) {
     forecastCardEl.append(forecastIconEl);
 
     let tempForecastEl = $("<div>");
-    tempForecastEl.text("Temp: " + forecastArray[i].main.temp);
+    tempForecastEl.text("Temp: " + forecastArray[i].main.temp + " F");
     forecastCardEl.append(tempForecastEl);
 
     let windForecastEl = $("<div>");
-    windForecastEl.text("Wind: " + forecastArray[i].wind.speed);
+    windForecastEl.text("Wind: " + forecastArray[i].wind.speed + " MPH");
     forecastCardEl.append(windForecastEl);
 
     let humidityForecastEl = $("<div>");
-    humidityForecastEl.text("Humidity: " + forecastArray[i].main.humidity);
+    humidityForecastEl.text("Humidity: " + forecastArray[i].main.humidity + " %");
     forecastCardEl.append(humidityForecastEl);
   }
 }
