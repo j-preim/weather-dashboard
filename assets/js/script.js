@@ -6,8 +6,7 @@ function formatDate (date) {
   return dayjs(date).format("M/D/YYYY");
 }
 
-var cityName = document.querySelector("#cityName");
-var searchBtn = $(".searchBtn");
+var searchButton = $(".search-button");
 var APIKey = "d3d61fa7fc189fe9cb855f295de8c0de";
 
 let storedSearches = JSON.parse(localStorage.getItem("storedSearches"));
@@ -18,64 +17,85 @@ if (storedSearches === null) {
 const asideEl = $("aside");
 
 for (i = 0; i < storedSearches.length; i++) {
-  const storedSearchButton = $("<button>");
-  storedSearchButton.addClass("my-2");
+  var storedSearchButton = $("<button>");
+  storedSearchButton.addClass("my-2 btn stored-search-button");
   storedSearchButton.text(storedSearches.reverse()[i]);
   asideEl.append(storedSearchButton);
 }
 
-searchBtn.on("click", function (e) {
+var storedSearchButtons = $(".stored-search-button");
+
+storedSearchButtons.on("click", async function (e) {
+  const cityName = e.target.textContent;
+  const forecastArray = await getForecast(cityName);
+  renderCurrent(forecastArray, cityName);
+});
+
+searchButton.on("click", async function (e) {
+  let cityName = document.querySelector("#cityName");
+  if (cityName.value.trim() !== "") {
   cityName = cityName.value.charAt(0).toUpperCase() + cityName.value.slice(1);
   storedSearches.push(cityName);
   localStorage.setItem("storedSearches", JSON.stringify(storedSearches));
-  getCoordinates(cityName);
+  const forecastArray = await getForecast(cityName);
+  renderCurrent(forecastArray, cityName);
+  }
 });
 
-function getCoordinates(cityName) {
+async function getCoordinates(cityName) {
   var geoUrl =
     "http://api.openweathermap.org/geo/1.0/direct?q=" +
     cityName +
     "&limit=1&appid=" +
     APIKey;
 
-  fetch(geoUrl)
+const coordinates = {};
+
+  await fetch(geoUrl)
     .then(function (response) {
       return response.json();
     })
     .then(function (data) {
-        var latitude = data[0].lat;
-        var longitude = data[0].lon;
-    
-      getForecast(latitude, longitude);
-})
+        coordinates.latitude = data[0].lat;
+        coordinates.longitude = data[0].lon;
+});
+return coordinates;
 }
 
-function getForecast(latitude, longitude) {
+async function getForecast(cityName) {
+  const coordinates = await getCoordinates(cityName);
+  console.log(coordinates);
   var forecastUrl =
     "http://api.openweathermap.org/data/2.5/forecast?lat=" +
-    latitude +
+    coordinates.latitude +
     "&lon=" +
-    longitude +
+    coordinates.longitude +
     "&appid=" +
     APIKey +
     "&units=imperial";
 
-  fetch(forecastUrl)
+    let forecastArray = [];
+
+  await fetch(forecastUrl)
     .then(function (response) {
       return response.json();
     })
     .then(function (data) {
-      var day1 = data.list[4];
-      var day2 = data.list[12];
-      var day3 = data.list[20];
-      var day4 = data.list[28];
-      var day5 = data.list[36];
-
-      renderCurrent(day1, day2, day3, day4, day5);
+      forecastArray = [data.list[4], data.list[12], data.list[20], data.list[28], data.list[36]];
     });
+    return forecastArray;
 }
 
-function renderCurrent(day1, day2, day3, day4, day5) {
+function clearPage() {
+  const resultsEl = $("#results");
+  if (resultsEl) {
+    resultsEl.html("");
+  }
+  console.log(resultsEl);
+}
+
+function renderCurrent(forecastArray, cityName) {
+  clearPage();
   const resultsEl = $("#results");
 
   const currentInfoEl = $("<section>");
@@ -86,22 +106,22 @@ function renderCurrent(day1, day2, day3, day4, day5) {
   const cityCurrentEl = $("<header>");
   cityCurrentEl.attr("id", "cityCurrent");
   cityCurrentEl.text(cityName + " (" + todayFormatted + ") ");
-  cityCurrentEl.append(generateIconImgTag(day1.weather[0].icon));
+  cityCurrentEl.append(generateIconImgTag(forecastArray[0].weather[0].icon));
   currentInfoEl.append(cityCurrentEl);
 
   const tempCurrentEl = $("<div>");
   tempCurrentEl.attr("id", "tempCurrent");
-  tempCurrentEl.text("Temp: " + day1.main.temp);
+  tempCurrentEl.text("Temp: " + forecastArray[0].main.temp);
   currentInfoEl.append(tempCurrentEl);
 
   const windCurrentEl = $("<div>");
   windCurrentEl.attr("id", "windCurrent");
-  windCurrentEl.text("Wind: " + day1.wind.speed);
+  windCurrentEl.text("Wind: " + forecastArray[0].wind.speed);
   currentInfoEl.append(windCurrentEl);
 
   const humidityCurrentEl = $("<div>");
   humidityCurrentEl.attr("id", "humidityCurrent");
-  humidityCurrentEl.text("Humidity: " + day1.main.humidity);
+  humidityCurrentEl.text("Humidity: " + forecastArray[0].main.humidity);
   currentInfoEl.append(humidityCurrentEl);
 
   const fiveDayHeaderEl = $("<header>");
@@ -112,7 +132,6 @@ function renderCurrent(day1, day2, day3, day4, day5) {
   forecastRowEl.addClass("row justify-content-around");
   resultsEl.append(forecastRowEl);
 
-  const forecastArray = [day1, day2, day3, day4, day5];
   
   for (i = 0; i < forecastArray.length; i++) {
     let forecastCardEl = $("<div>");

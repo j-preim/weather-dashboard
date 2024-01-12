@@ -31,6 +31,12 @@ main header {
   padding-bottom: 1rem;
 }
 
-img {
-  box-shadow : inset 10px 5px 5px red;
+.search-button {
+  background-color: rgb(64, 3, 246);
+  color: white;
+}
+
+.stored-search-button {
+    background-color: gray;
+    color: black;
 }
